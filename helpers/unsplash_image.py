@@ -16,4 +16,7 @@ async def get_random_image(client_key, query, orientation):
         # Read the JSON response and obtain the source image
         resp_json = await resp.json()
 
+        # Close the session after the image download link is obtained
+        await session.close()
+
         return resp_json['urls']['regular']
