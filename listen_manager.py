@@ -4,6 +4,7 @@ import discord.ext.commands as disc_cmds
 
 from daily_reminder import DailyReminder
 from economy import Shop, Inventory, Economy
+from quack import on_message as quack_message
 
 
 class ListenerManager(disc_cmds.Cog, name='ListenerManager'):
@@ -21,6 +22,8 @@ class ListenerManager(disc_cmds.Cog, name='ListenerManager'):
         # while the daily reminder is in progress
         async with self.daily_reminder.lock:
             await self.daily_reminder.remind(message)
+        
+        await quack_message(message)
 
     # Listener for leaderboard command
     @disc_cmds.Cog.listener(name='on_raw_reaction_add')

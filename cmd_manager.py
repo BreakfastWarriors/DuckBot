@@ -9,6 +9,7 @@ import parsedatetime
 
 import helpers.discord as discord_helpers
 from duck_facts import DuckFact
+from quack import generate_duck
 from economy import Economy, Shop, Inventory
 from economy.errors import NotAnItemError
 
@@ -87,6 +88,15 @@ class CommandManager(disc_cmds.Cog, name='CommandManager'):
         fact_embed.set_image(url=image)
 
         await ctx.send(embed=fact_embed)
+
+    @disc_cmds.command(name='quack')
+    async def duck_speak(self, ctx, *args):
+        if len(args) > 0:
+            await ctx.send(content='Invalid number of arguments, please try again.')
+            return None
+        duck_say = generate_duck()
+
+        await ctx.send(duck_say)
 
     @disc_cmds.command(name='inventory')
     async def inventory(self, ctx):
