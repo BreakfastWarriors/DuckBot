@@ -25,9 +25,9 @@ class DuckBot(disc_cmds.Bot):
         else:
             self.unsplash_access = None
         if 'pin-channel' in self.config:
-            self.pin_channel = self.config['pin-channel']
+            self.pin_channel_name = self.config['pin-channel']
         else:
-            self.pin_channel = None
+            self.pin_channel_name = None
 
 
 async def main():

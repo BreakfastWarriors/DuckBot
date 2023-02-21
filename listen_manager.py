@@ -21,8 +21,8 @@ class ListenerManager(disc_cmds.Cog, name='ListenerManager'):
                 self.pins = json.load(pin_file)
         else:
             self.pins = {}
-
         self.pin_channel = None
+
         self.duck_up = '<:duck_up:1071706220043452518>'
         self.duck_down = '<:duck_down:1071706217845624842>'
 
@@ -32,9 +32,9 @@ class ListenerManager(disc_cmds.Cog, name='ListenerManager'):
         if not self.bot.current_guild:
             print(f'Warning: remind server {self.bot.remind_server} inaccessible to bot!')
 
-        self.pin_channel = discord.utils.get(self.bot.current_guild.text_channels, name=self.bot.pin_channel)
+        self.pin_channel = discord.utils.get(self.bot.current_guild.text_channels, name=self.bot.pin_channel_name)
         if not self.pin_channel:
-            print(f'Error: the pin channel {self.bot.pin_channel} does not exist')
+            print(f'Error: the pin channel {self.bot.pin_channel_name} does not exist')
 
         print('Ready to go!')
 
@@ -127,30 +127,35 @@ class ListenerManager(disc_cmds.Cog, name='ListenerManager'):
                                               embeds=embeds,
                                               allowed_mentions=discord.AllowedMentions.none())
 
-        # Add reactions to the pin message
-        await pin_msg.add_reaction(self.duck_up)
-        await pin_msg.add_reaction(self.duck_down)
-
         # Add the mapping between the target msg and the pin msg
         self.pins[target_msg.id] = pin_msg.id
         with open('data/pins.json', 'w') as outfile:
             json.dump(self.pins, outfile)
 
+        # Add reactions to the pin message
+        await pin_msg.add_reaction(self.duck_up)
+        await pin_msg.add_reaction(self.duck_down)
+
     # Pin removal
-    @disc_cmds.Cog.listener(name='on_raw_reaction_clear_emoji')
-    async def on_pin_reaction(self, reaction_event):
+    @disc_cmds.Cog.listener(name='on_raw_reaction_remove')
+    async def on_pin_clear(self, reaction_event):
         if reaction_event.emoji.name != '📌' or not self.pin_channel:
             return
 
-        if reaction_event.message_id in self.pins:
-            pin_msg_id = self.pins[reaction_event.message_id]
-            pin_msg = await self.pin_channel.fetch_message(pin_msg_id)
+        # Make sure there's no more pin emoji in the message
+        target_msg = await self.bot.current_guild.get_channel(reaction_event.channel_id) \
+            .fetch_message(reaction_event.message_id)
+        reaction = next((r for r in target_msg.reactions if r.emoji == '📌'), None)
+        if not reaction:
+            if reaction_event.message_id in self.pins:
+                pin_msg_id = self.pins[reaction_event.message_id]
+                pin_msg = await self.pin_channel.fetch_message(pin_msg_id)
 
-            if not pin_msg:
-                print(f'Error: pin message {pin_msg_id} not found')
-                return
+                if not pin_msg:
+                    print(f'Error: pin message {pin_msg_id} not found')
+                    return
 
-            await pin_msg.delete()
-            del self.pins[reaction_event.message_id]
-            with open('data/pins.json', 'w') as outfile:
-                json.dump(self.pins, outfile)
+                await pin_msg.delete()
+                del self.pins[reaction_event.message_id]
+                with open('data/pins.json', 'w') as outfile:
+                    json.dump(self.pins, outfile)
