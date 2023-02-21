@@ -22,10 +22,7 @@ class ListenerManager(disc_cmds.Cog, name='ListenerManager'):
         else:
             self.pins = {}
 
-        self.pin_channel = discord.utils.get(self.bot.current_guild.text_channels, name=self.bot.pin_channel)
-        if not self.pin_channel:
-            print(f'Error: the pin channel {self.bot.pin_channel} does not exist')
-
+        self.pin_channel = None
         self.duck_up = '<:duck_up:1071706220043452518>'
         self.duck_down = '<:duck_down:1071706217845624842>'
 
@@ -34,6 +31,11 @@ class ListenerManager(disc_cmds.Cog, name='ListenerManager'):
         self.bot.current_guild = discord.utils.get(self.bot.guilds, name=self.bot.remind_server)
         if not self.bot.current_guild:
             print(f'Warning: remind server {self.bot.remind_server} inaccessible to bot!')
+
+        self.pin_channel = discord.utils.get(self.bot.current_guild.text_channels, name=self.bot.pin_channel)
+        if not self.pin_channel:
+            print(f'Error: the pin channel {self.bot.pin_channel} does not exist')
+
         print('Ready to go!')
 
     @disc_cmds.Cog.listener(name='on_message')
@@ -90,8 +92,8 @@ class ListenerManager(disc_cmds.Cog, name='ListenerManager'):
         msg_channel = target_msg.channel
         msg_link = target_msg.jump_url
         msg_attachments = target_msg.attachments
-        msg_id = target_msg.id
-        msg_time = target_msg.created_at
+        # msg_id = target_msg.id
+        # msg_time = target_msg.created_at
         msg_embed = target_msg.embeds
 
         # Assemble the pin message
