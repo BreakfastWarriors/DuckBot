@@ -140,5 +140,5 @@ async def on_message(message):
                 print(kr_count)
                 say = generate_duck_kr()
                 if kr_count%3 == 0:
+                    kr_count += 1
                     await message.reply(say, mention_author=False)
-                kr_count += 1
